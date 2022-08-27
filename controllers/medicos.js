@@ -52,11 +52,29 @@ const crearMedico = async (req = request, res = response) => {
 
 const actualizarMedico = async (req = request, res = response) => {
 
+  const id = req.params.id;
+  const uid = req.uid;
+
   try {
-      
+
+    const medicoDB = await Medico.findById(id);
+    if (!medicoDB) {
+      res.status(404).json({
+        ok: false,
+        msg: 'Médico no encontrado por ID'
+      });
+    }
+
+    const cambiosMedico = {
+      ...req.body,
+      usuario: uid
+    }
+
+    const medicoActualizado = await Medico.findByIdAndUpdate(id, cambiosMedico, { new: true });
+
     res.status(200).json({
       ok: true,
-      msg: 'Update Medico'
+      medico: medicoActualizado
     });
 
   } catch (error) {
@@ -70,11 +88,23 @@ const actualizarMedico = async (req = request, res = response) => {
 
 const borrarMedico = async (req = request, res = response) => {
 
+  const id = req.params.id;
+
   try {
-      
+
+    const medicoDB = await Medico.findById(id);
+    if (!medicoDB) {
+      res.status(404).json({
+        ok: false,
+        msg: 'Médico no encontrado por ID'
+      });
+    }
+
+    await Medico.findByIdAndDelete(id);
+
     res.status(200).json({
       ok: true,
-      msg: 'Delete Medico'
+      msg: 'Médico eliminado'
     });
 
   } catch (error) {

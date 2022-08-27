@@ -50,11 +50,29 @@ const crearHospital = async (req = request, res = response) => {
 
 const actualizarHospital = async (req = request, res = response) => {
 
+  const id = req.params.id;
+  const uid = req.uid;
+
   try {
-      
+
+    const hospitalDB = await Hospital.findById(id);
+    if (!hospitalDB) {
+      res.status(404).json({
+        ok: false,
+        msg: 'Hospital no encontrado por ID'
+      });
+    }
+
+    const cambiosHospital = {
+      ...req.body,
+      usuario: uid
+    }
+
+    const hospitalActualizado = await Hospital.findByIdAndUpdate(id, cambiosHospital, { new: true });
+
     res.status(200).json({
       ok: true,
-      msg: 'Update Hospital'
+      hospital: hospitalActualizado
     });
 
   } catch (error) {
@@ -68,11 +86,23 @@ const actualizarHospital = async (req = request, res = response) => {
 
 const borrarHospital = async (req = request, res = response) => {
 
+  const id = req.params.id;
+
   try {
-      
+
+    const hospitalDB = await Hospital.findById(id);
+    if (!hospitalDB) {
+      res.status(404).json({
+        ok: false,
+        msg: 'Hospital no encontrado por ID'
+      });
+    }
+
+    await Hospital.findByIdAndDelete(id);
+
     res.status(200).json({
       ok: true,
-      msg: 'Delete Hospital'
+      msg: 'Hospital eliminado'
     });
 
   } catch (error) {
