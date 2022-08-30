@@ -2,6 +2,7 @@ const { request, response } = require('express');
 const bcrypt = require('bcryptjs');
 
 const Usuario = require('../models/usuario');
+
 const { generarJWT } = require('../helpers/jwt');
 const { googleVerify } = require('../helpers/google-verify');
 
@@ -98,9 +99,13 @@ const renewToken = async (req = request, res = response) => {
     const uid = req.uid;
     const token = await generarJWT(uid);
 
+    // Obtener el usuario UID
+    const usuario = await Usuario.findById(uid);
+
     res.status(200).json({
       ok: true,
-      token
+      usuario,
+      token,
     });
     
   } catch (error) {
