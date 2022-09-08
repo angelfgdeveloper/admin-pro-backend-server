@@ -7,9 +7,10 @@ const { check } = require('express-validator');
 
 const {
   getMedicos,
+  getMedicoById,
   crearMedico,
   actualizarMedico,
-  borrarMedico
+  borrarMedico,
 } = require('../controllers/medicos');
 
 const { validarCampos } = require('../middlewares/validar-campos');
@@ -17,7 +18,13 @@ const { validarJWT } = require('../middlewares/validar-jwt');
 
 const router = Router();
 
-router.get('/', getMedicos);
+router.get('/', validarJWT, getMedicos);
+
+router.get('/:id', [
+  validarJWT,
+  check('id', 'El id del médico debe ser válido').isMongoId(),
+  validarCampos
+], getMedicoById);
 
 router.post('/', [
   validarJWT,
@@ -34,5 +41,6 @@ router.put('/:id', [
 ], actualizarMedico);
 
 router.delete('/:id', validarJWT, borrarMedico);
+
 
 module.exports = router;

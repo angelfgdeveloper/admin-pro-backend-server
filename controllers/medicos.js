@@ -4,18 +4,50 @@ const Medico = require('../models/medico');
 
 const getMedicos = async (req = request, res = response) => {
 
+  const desde = Number(req.query.desde) || 0;
+
   try {
 
-    const medicos = await Medico.find()
-                                .populate('usuario', 'nombre img')
-                                .populate('hospital', 'nombre img');
+    const [ medicos, total ] = await Promise.all([
+      Medico.find()
+            .populate('usuario', 'nombre img')
+            .populate('hospital', 'nombre img')
+            .skip(desde)
+            .limit(5),
+      Medico.countDocuments()
+    ]);
 
     res.status(200).json({
       ok: true,
-      medicos
+      total,
+      medicos,
     });
 
   } catch (error) {
+    res.status(500).json({
+      ok: false,
+      msg: 'Error inesperado... revisar logs'
+    });
+  }
+
+}
+
+const getMedicoById = async (req = request, res = response) => {
+
+  const id = req.params.id;
+
+  try {
+    const medico = await Medico.findById(id)
+                               .populate('usuario', 'nombre img')
+                               .populate('hospital', 'nombre img');
+
+    res.status(200).json({
+      ok: true,
+      medico,
+    });
+
+  } catch (error) {
+    console.log(error);
     res.status(500).json({
       ok: false,
       msg: 'Error inesperado... revisar logs'
@@ -118,6 +150,7 @@ const borrarMedico = async (req = request, res = response) => {
 
 module.exports = {
   getMedicos,
+  getMedicoById,
   crearMedico,
   actualizarMedico,
   borrarMedico,
